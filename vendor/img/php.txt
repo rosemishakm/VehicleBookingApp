@@ -1,0 +1,43 @@
+<?php
+session_start();
+include('vendor/inc/config.php');
+
+if (isset($_POST['Usr-login'])) {
+    $u_email = $_POST['u_email'];
+    $u_pwd = $_POST['u_pwd'];
+
+    // Hash the password using SHA-256
+    $hashed_password = hash('sha256', $u_pwd);
+
+    $stmt = $mysqli->prepare("SELECT u_email, u_pwd, u_id FROM tms_user WHERE u_email=? and u_pwd=? ");
+    $stmt->bind_param('ss', $u_email, $hashed_password);
+    $stmt->execute();
+    $stmt->bind_result($u_email, $hashed_password, $u_id);
+    $rs = $stmt->fetch();
+    $stmt->close();
+
+    $_SESSION['u_id'] = $u_id;
+    $_SESSION['login'] = $u_email;
+    $uip = $_SERVER['REMOTE_ADDR'];
+    $ldate = date('d/m/Y h:i:s', time());
+
+    if ($rs) {
+        // Get user logs
+        $uid = $_SESSION['u_id'];
+        $u_email = $_SESSION['login'];
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $geopluginURL = 'http://www.geoplugin.net/php.gp?ip=' . $ip;
+        $addrDetailsArr = unserialize(file_get_contents($geopluginURL));
+        $city = $addrDetailsArr['geoplugin_city'];
+        $country = $addrDetailsArr['geoplugin_countryName'];
+        $log = "INSERT INTO userLog(u_id, u_email, u_ip, u_city, u_country) VALUES ('$u_id','$u_email','$ip','$city','$country')";
+        $mysqli->query($log);
+
+        if ($log) {
+            header("location:user-dashboard.php");
+        }
+    } else {
+        $error = "Access Denied. Please Check Your Credentials";
+    }
+}
+?>

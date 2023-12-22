@@ -1,0 +1,6 @@
+projectKey=VehRent
+serverUrl=http://localhost:9003
+serverVersion=10.3.0.82913
+dashboardUrl=http://localhost:9003/dashboard?id=VehRent
+ceTaskId=AYyHTexDd_m8Wz1tD_0d
+ceTaskUrl=http://localhost:9003/api/ce/task?id=AYyHTexDd_m8Wz1tD_0d
